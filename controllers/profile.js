@@ -26,6 +26,22 @@ const profileReplies = async (req, res, next) => {
     res.status(200).render('profile', payload)
 }
 
+const profileFollowing = async (req, res, next) => {
+
+    var payload = await getPayload(req.params.username, req.session.user)
+    payload.selectedTab = 'following'
+
+    res.status(200).render('followersAndFollowing', payload)
+}
+
+const profileFollowers = async (req, res, next) => {
+
+    var payload = await getPayload(req.params.username, req.session.user)
+    payload.selectedTab = 'followers'
+
+    res.status(200).render('followersAndFollowing', payload)
+}
+
 async function getPayload(username, userLoggedIn) {
     var user = await User.findOne({ username: username })
 
@@ -53,5 +69,7 @@ async function getPayload(username, userLoggedIn) {
 module.exports = { 
     profile, 
     profileUsername,
-    profileReplies
+    profileReplies,
+    profileFollowing,
+    profileFollowers
 }

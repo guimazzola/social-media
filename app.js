@@ -33,3 +33,4 @@ app.use('/profile', middleware.requireLogin, require('./routes/profile'))
 
 //API Routes
 app.use('/api/posts', require('./routes/api/posts'))
+app.use('/api/users', require('./routes/api/users'))
