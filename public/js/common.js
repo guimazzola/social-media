@@ -1,3 +1,6 @@
+//Globals variables
+var cropper;
+
 $("#postTextarea, #replyTextarea").keyup(() => {
     var textbox = $(event.target)
     var value = textbox.val().trim()
@@ -84,6 +87,50 @@ $('#deletePostButton').click((event) => {
 
 $('#replyModal').on('hidden.bs.modal', (event) => {
     $('#originalPostContainer').html('')
+})
+
+$('#filePhoto').change(function() {
+
+    if(this.files && this.files[0]) {
+        var reader = new FileReader()
+        reader.onload = (e) => {
+            var image = document.getElementById('imagePreview')
+            image.src = e.target.result
+
+            if(cropper !== undefined) {
+                cropper.destroy()
+            }
+
+            cropper = new Cropper(image, {
+                aspectRatio: 1/1,
+                background: false
+            })
+        }
+        reader.readAsDataURL(this.files[0])
+    }
+})
+
+$("#imageuploadButton").click(() => {
+    var canvas = cropper.getCroppedCanvas()
+
+    if(canvas == null) {
+        alert("Could not upload image. Make sure it is an image file.")
+        return
+    }
+
+    canvas.toBlob((blob) => {
+        var formData = new FormData()
+        formData.append("croppedImage", blob)
+
+        $.ajax({
+            url: '/api/users/profilePicture',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: () => location.reload()
+        })
+    })
 })
 
 $(document).on("click", ".likeButton", (event) => {

@@ -30,6 +30,7 @@ app.use('/register', require('./routes/register'))
 app.use('/logout', require('./routes/logout'))
 app.use('/post', middleware.requireLogin, require('./routes/posts'))
 app.use('/profile', middleware.requireLogin, require('./routes/profile'))
+app.use('/social-media/uploads', require('./routes/upload'))
 
 //API Routes
 app.use('/api/posts', require('./routes/api/posts'))

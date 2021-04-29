@@ -1,5 +1,7 @@
 const User = require('../schemas/User')
 const Post = require('../schemas/Post')
+const path = require('path')
+const fs = require('fs')
 
 const userFollow = async (req, res, next) => {
 
@@ -52,8 +54,30 @@ const userFollowers = async (req, res, next) => {
     })
 }
 
+const userProfilePicture =  async (req, res, next) => {
+    if(!req.file) {
+        console.log('No file uploaded with AJAX request.')
+        return res.sendStatus(400)
+    }
+
+    var filePath = `social-media/uploads/images/${req.file.filename}.png`
+    var tempPath = req.file.path
+    var targetPath = path.join(__dirname, `../../${filePath}`)
+
+    fs.rename(tempPath, targetPath, async error => {
+        if(error != null) {
+            console.log(error)
+            return res.sendStatus(400)
+        }
+
+        req.session.user = await User.findByIdAndUpdate(req.session.user._id, { profilePic: filePath }, { new: true })
+        res.sendStatus(204)
+    })
+}
+
 module.exports = { 
     userFollow,
     userFollowing,
-    userFollowers
+    userFollowers,
+    userProfilePicture
 }
