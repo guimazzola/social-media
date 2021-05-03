@@ -5,20 +5,27 @@ block content
         span.errorMessage Check the url you are trying to access
     else  
         script.
-            var profileUserId = '!{profileUser._id}'
-            var selectedTab = '!{selectedTab}'
+            var profileUserId = '!{profileUser._id}';
+            var selectedTab = '!{selectedTab}';
 
-        - followersCount = profileUser.followers.length 
+        - followersCount = profileUser.followers.length
         - followingCount = profileUser.following.length
-
+            
         .profileHeaderContainer
-            .coverPhotoContainer
+            .coverPhotoSection
+                .coverPhotoContainer
+                    if profileUser.coverPhoto
+                        img(src=profileUser.coverPhoto, alt="User's cover photo")
+
+                    if profileUser._id == userLoggedIn._id
+                        button.coverPhotoButton(data-toggle="modal", data-target="#coverPhotoUploadModal")
+                            i.fas.fa-camera
 
                 .userImageContainer
                     img(src=profileUser.profilePic, alt="User profile image")
 
                     if profileUser._id == userLoggedIn._id
-                        button.profilePictureButton(data-toggle='modal', data-target='#imageUploadModal')
+                        button.profilePictureButton(data-toggle="modal", data-target="#imageUploadModal")
                             i.fas.fa-camera
 
             .profileButtonsContainer
@@ -26,10 +33,10 @@ block content
                     a.profileButton(href=`/messages/${profileUser._id}`)
                         i.fas.fa-envelope
 
-                    - var profileUserId = profileUser._id.toString()
+                    - var profileUserId = profileUser._id.toString();
                     - if(userLoggedIn.following && userLoggedIn.following.includes(profileUserId))
                         +createFollowButton(profileUser, true)
-                    - else 
+                    - else
                         +createFollowButton(profileUser, false)
 
             .userDetailsContainer
@@ -37,7 +44,7 @@ block content
                 span.username @#{profileUser.username}
                 span.description #{profileUser.description}
 
-                .followersContainer 
+                .followersContainer
                     a(href=`/profile/${profileUser.username}/following`)
                         span.value #{followingCount}
                         span Following
@@ -45,13 +52,15 @@ block content
                         span#followersValue.value #{followersCount}
                         span Followers
         .tabsContainer
-            +createTab('Posts', `/profile/${profileUser.username}`, selectedTab != 'replies')
-            +createTab('Replies', `/profile/${profileUser.username}/replies`, selectedTab == 'replies')
+            +createTab("Posts", `/profile/${profileUser.username}`, selectedTab != "replies")
+            +createTab("Replies", `/profile/${profileUser.username}/replies`, selectedTab == "replies")
+
 
         .postsContainer
 
         +createPostModals(userLoggedIn)
         +createImageUploadModal()
+        +createCoverPhotoUploadModal()
 
 block scripts
     script(src="/js/profile.js")

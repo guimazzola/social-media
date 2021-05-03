@@ -12,4 +12,6 @@ router.get('/:userId/followers', controller.userFollowers)
 
 router.post('/profilePicture', upload.single('croppedImage'), controller.userProfilePicture)
 
+router.post('/coverPhoto', upload.single('croppedImage'), controller.userCoverPhoto)
+
 module.exports = router
