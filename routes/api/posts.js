@@ -14,4 +14,6 @@ router.post('/:id/retweet', controller.postsPostRetweet)
 
 router.delete('/:id', controller.postDelete)
 
+router.put('/:id', controller.postPin)
+
 module.exports = router

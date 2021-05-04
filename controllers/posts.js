@@ -159,6 +159,27 @@ const postDelete = (req, res, next) => {
     })
 }
 
+const postPin = async (req, res, next) => {
+
+    if(req.body.pinned !== undefined) {
+        await Post.updateMany(
+            { postedBy: req.session.user }, 
+            { pinned: false }
+        )
+        .catch(error => {
+            console.log(error)
+            res.sendStatus(400)
+        })
+    }
+
+    Post.findByIdAndUpdate(req.params.id, req.body)
+    .then(() => res.sendStatus(204))
+    .catch(error => {
+        console.log(error)
+        res.sendStatus(400)
+    })
+}
+
 const postGetId = (req, res, next) => {
     var payload = {
         pageTitle: "View Post",
@@ -190,5 +211,6 @@ module.exports = {
     postsPostRetweet, 
     postsGetSingleOne, 
     postGetId,
-    postDelete
+    postDelete,
+    postPin
 }

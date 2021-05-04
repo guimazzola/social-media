@@ -32,7 +32,8 @@ const PostSchema = new Schema({
     replyTo: {
         type: Schema.Types.ObjectId, 
         ref: 'Post'
-    }
+    },
+    pinned: Boolean
 }, {
     //Created and Updates date info on mongodb
     timestamps: true
