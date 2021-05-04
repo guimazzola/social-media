@@ -4,6 +4,8 @@ const controller = require('../../controllers/users')
 const multer = require('multer')
 const upload = multer({ dest: 'uploads/' })
 
+router.get('/', controller.userSearch)
+
 router.put('/:userId/follow', controller.userFollow)
 
 router.get('/:userId/following', controller.userFollowing)

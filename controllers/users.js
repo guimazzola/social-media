@@ -30,6 +30,28 @@ const userFollow = async (req, res, next) => {
     res.status(200).send(req.session.user)
 }
 
+const userSearch = (req, res, next) => {
+
+    var searchObj = req.query
+
+    if(req.query.search !== undefined) {
+        searchObj = {
+            $or: [
+                { firstName: { $regex: req.query.search, $options: "i" } },
+                { lastname: { $regex: req.query.search, $options: "i" } },
+                { username: { $regex: req.query.search, $options: "i" } }
+            ]
+        }
+    }
+
+    User.find(searchObj)
+    .then(results => res.status(200).send(results))
+    .catch(error => {
+        console.log(error)
+        res.sendStatus(400)
+    })
+}
+
 const userFollowing = async (req, res, next) => {
     User.findById(req.params.userId)
     .populate('following')
@@ -101,5 +123,6 @@ module.exports = {
     userFollowing,
     userFollowers,
     userProfilePicture,
-    userCoverPhoto
+    userCoverPhoto,
+    userSearch
 }

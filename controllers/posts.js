@@ -11,6 +11,11 @@ const postsGet = async (req, res, next) => {
         delete searchObj.isReply
     }
 
+    if(searchObj.search !== undefined) {
+        searchObj.content = { $regex: searchObj.search, $options: "i" }
+        delete searchObj.search
+    }
+
     if(searchObj.followingOnly !== undefined) {
         var followingOnly = searchObj.followingOnly == 'true'
 
@@ -40,22 +45,22 @@ const postsGet = async (req, res, next) => {
 
 const postsGetSingleOne = async (req, res, next) => {
 
-    var postId = req.params.id
+    var postId = req.params.id;
 
-    var postData = await getPosts({ _id: postId })
-    postData = postData[0]
+    var postData = await getPosts({ _id: postId });
+    postData = postData[0];
 
     var results = {
         postData: postData
     }
 
     if(postData.replyTo !== undefined) {
-        results.replyTo = postData.replyTo
+        results.replyTo = postData.replyTo;
     }
 
-    results.replies = await getPosts({ replyTo: postId })
+    results.replies = await getPosts({ replyTo: postId });
 
-    res.status(200).send(results)
+    res.status(200).send(results);
 }
 
 const postsPost = async (req, res, next) => {
@@ -181,14 +186,15 @@ const postPin = async (req, res, next) => {
 }
 
 const postGetId = (req, res, next) => {
+
     var payload = {
-        pageTitle: "View Post",
+        pageTitle: "View post",
         userLoggedIn: req.session.user,
         userLoggedInJs: JSON.stringify(req.session.user),
         postId: req.params.id
     }
-
-    res.status(200).render('postPage', payload)
+    
+    res.status(200).render("postPage", payload);
 }
 
 async function getPosts(filter) {
