@@ -5,4 +5,6 @@ const controller = require('../../controllers/chats')
 
 router.post('/', controller.chatsPost)
 
+router.get('/', controller.chatsGet)
+
 module.exports = router
