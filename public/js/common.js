@@ -1,5 +1,7 @@
 // Globals
 var cropper;
+var timer;
+var selectedUsers = [];
 
 $("#postTextarea, #replyTextarea").keyup(event => {
     var textbox = $(event.target);
@@ -226,6 +228,48 @@ $("#coverPhotoButton").click(() => {
     })
 })
 
+$("#userSearchTextbox").keydown((event) => {
+    clearTimeout(timer);
+    var textbox = $(event.target);
+    var value = textbox.val();
+
+    if (value == "" && event.keyCode == 8) {
+        // remove user from selection
+        selectedUsers.pop();
+        updateSelectedUsersHtml();
+        $(".resultsContainer").html("");
+
+        if(selectedUsers.length == 0) {
+            $("#createChatButton").prop("disabled", true);
+        }
+
+        return;
+    }
+
+    timer = setTimeout(() => {
+        value = textbox.val().trim();
+
+        if(value == "") {
+            $(".resultsContainer").html("");
+        }
+        else {
+            searchUsers(value);
+        }
+    }, 1000)
+
+})
+
+$("#createChatButton").click(() => {
+    var data = JSON.stringify(selectedUsers);
+
+    $.post("/api/chats", { users: data }, chat => {
+
+        if(!chat || !chat._id) return alert("Invalid response from server.");
+
+        window.location.href = `/messages/${chat._id}`;
+    })
+})
+
 $(document).on("click", ".likeButton", (event) => {
     var button = $(event.target);
     var postId = getPostIdFromElement(button);
@@ -376,19 +420,19 @@ function createPostHtml(postData, largeFont = false) {
     }
 
     var buttons = "";
-    var pinnedPostText = ""
+    var pinnedPostText = "";
     if (postData.postedBy._id == userLoggedIn._id) {
 
-        var pinnedClass = ""
-        var dataTarget = "#confirmPinModal"
-        if(postData.pinned === true) {
-            pinnedClass = "active"
-            dataTarget = '#unpinModal'
-            pinnedPostText = "<i class='fas fa-thumbtack'></i> <span>Pinned post</span>"
+        var pinnedClass = "";
+        var dataTarget = "#confirmPinModal";
+        if (postData.pinned === true) {
+            pinnedClass = "active";
+            dataTarget = "#unpinModal";
+            pinnedPostText = "<i class='fas fa-thumbtack'></i> <span>Pinned post</span>";
         }
 
         buttons = `<button class='pinButton ${pinnedClass}' data-id="${postData._id}" data-toggle="modal" data-target="${dataTarget}"><i class='fas fa-thumbtack'></i></button>
-                    <button data-id="${postData._id}" data-toggle="modal" data-target="#deletePostModal"><i class='fas fa-times'></i></button>`
+                    <button data-id="${postData._id}" data-toggle="modal" data-target="#deletePostModal"><i class='fas fa-times'></i></button>`;
     }
 
     return `<div class='post ${largeFontClass}' data-id='${postData._id}'>
@@ -507,33 +551,30 @@ function outputPostsWithReplies(results, container) {
 }
 
 function outputUsers(results, container) {
-    container.html('')
+    container.html("");
 
     results.forEach(result => {
-        var html = createUserHtml(result, true)
-        container.append(html)
-    })
+        var html = createUserHtml(result, true);
+        container.append(html);
+    });
 
     if(results.length == 0) {
-        container.append("<span class='noResults'>No results found!</span>")
+        container.append("<span class='noResults'>No results found</span>")
     }
 }
 
 function createUserHtml(userData, showFollowButton) {
 
-    var name = userData.firstName + " " + userData.lastName
+    var name = userData.firstName + " " + userData.lastName;
+    var isFollowing = userLoggedIn.following && userLoggedIn.following.includes(userData._id);
+    var text = isFollowing ? "Following" : "Follow"
+    var buttonClass = isFollowing ? "followButton following" : "followButton"
 
-    var isFollowing = userLoggedIn.following && userLoggedIn.following.includes(userData._id)
-
-    var text = isFollowing ? 'Following' : 'Follow'
-    var buttonClass = isFollowing ? 'followButton following' : 'followButton'
-
-    var followButton = ''
-
-    if(showFollowButton && userLoggedIn._id != userData._id) {
+    var followButton = "";
+    if (showFollowButton && userLoggedIn._id != userData._id) {
         followButton = `<div class='followButtonContainer'>
                             <button class='${buttonClass}' data-user='${userData._id}'>${text}</button>
-                        </div>`
+                        </div>`;
     }
 
     return `<div class='user'>
@@ -547,5 +588,53 @@ function createUserHtml(userData, showFollowButton) {
                     </div>
                 </div>
                 ${followButton}
-            </div>`
+            </div>`;
+}
+
+function searchUsers(searchTerm) {
+    $.get("/api/users", { search: searchTerm }, results => {
+        outputSelectableUsers(results, $(".resultsContainer"));
+    })
+}
+
+function outputSelectableUsers(results, container) {
+    container.html("");
+
+    results.forEach(result => {
+        
+        if(result._id == userLoggedIn._id || selectedUsers.some(u => u._id == result._id)) {
+            return;
+        }
+
+        var html = createUserHtml(result, false);
+        var element = $(html);
+        element.click(() => userSelected(result))
+
+        container.append(element);
+    });
+
+    if(results.length == 0) {
+        container.append("<span class='noResults'>No results found</span>")
+    }
+}
+
+function userSelected(user) {
+    selectedUsers.push(user);
+    updateSelectedUsersHtml()
+    $("#userSearchTextbox").val("").focus();
+    $(".resultsContainer").html("");
+    $("#createChatButton").prop("disabled", false);
+}
+
+function updateSelectedUsersHtml() {
+    var elements = [];
+
+    selectedUsers.forEach(user => {
+        var name = user.firstName + " " + user.lastName;
+        var userElement = $(`<span class='selectedUser'>${name}</span>`);
+        elements.push(userElement);
+    })
+
+    $(".selectedUser").remove();
+    $("#selectedUsers").prepend(elements);
 }

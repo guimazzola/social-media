@@ -32,7 +32,9 @@ app.use('/post', middleware.requireLogin, require('./routes/posts'))
 app.use('/profile', middleware.requireLogin, require('./routes/profile'))
 app.use('/social-media/uploads', require('./routes/upload'))
 app.use('/search', middleware.requireLogin, require('./routes/search'))
+app.use('/messages', middleware.requireLogin, require('./routes/messages'))
 
 //API Routes
 app.use('/api/posts', require('./routes/api/posts'))
 app.use('/api/users', require('./routes/api/users'))
+app.use('/api/chats', require('./routes/api/chats'))
