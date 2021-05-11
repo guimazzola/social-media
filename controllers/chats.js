@@ -33,6 +33,7 @@ const chatsPost = async (req, res, next) => {
 const chatsGet = async (req, res, next) => {
     Chat.find({ users: { $elemMatch: { $eq: req.session.user._id } } })
     .populate("users")
+    .sort({ updatedAt: -1 })
     .then(results => res.status(200).send(results))
     .catch(error => {
         console.log(error)

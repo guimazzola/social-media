@@ -6,4 +6,6 @@ router.get('/', controller.messages)
 
 router.get('/new', controller.newMessage)
 
+router.get('/:chatId', controller.chatId)
+
 module.exports = router
