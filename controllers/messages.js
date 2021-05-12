@@ -1,5 +1,6 @@
 const User = require('../schemas/User')
 const Chat = require('../schemas/Chat')
+const Message = require('../schemas/Message')
 const mongoose = require('mongoose')
 
 const messages = (req, res, next) => {
@@ -65,6 +66,28 @@ const chatId = async (req, res, next) => {
     res.status(200).render("chat", payload);
 }
 
+const messageInbox = async (req, res, next) => {
+    if(!req.body.content || !req.body.chatId) {
+        console.log("Invalid data passed into request")
+        return res.sendStatus(400)
+    }
+
+    var newMessage = {
+        sender: req.session.user._id,
+        content: req.body.content,
+        chat: req.body.chatId
+    }
+
+    Message.create(newMessage)
+    .then(message  => {
+        res.status(201).send(message)
+    })
+    .catch(error => {
+        console.log(error)
+        res.sendStatus(400)
+    })
+}
+
 function getChatByUserId(userLoggedInId, otherUserId) {
     return Chat.findOneAndUpdate({
         isGroupChat: false,
@@ -88,8 +111,11 @@ function getChatByUserId(userLoggedInId, otherUserId) {
     .populate("users");
 }
 
+
+
 module.exports = { 
     messages,
     newMessage,
-    chatId
+    chatId,
+    messageInbox
  }
