@@ -1,12 +1,25 @@
 extends layouts/main-layout.pug
 
-block content    
-
-    if errorMessage 
+block content   
+    
+    if errorMessage
         span.errorMessage #{errorMessage}
     else 
         script.
-            var chatId = '!{chat._id}'
+            var chatId = '!{chat._id}';
+
+        .chatPageContainer
+            .chatTitleBarContainer
+                +createChatImage(chat, userLoggedIn)
+                span#chatName(data-toggle="modal", data-target="#chatNameModal") This is the chat
             
+            .mainContentContainer
+                .chatContainer
+                    .chatMessages
+                    .footer
+                        textarea(name="messageInput", placeholder="Type a message...")
+                        button.sendMessageButton
+                            i.fas.fa-paper-plane
+
 block scripts
     script(src="/js/chat.js")
