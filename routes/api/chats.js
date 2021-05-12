@@ -7,4 +7,8 @@ router.post('/', controller.chatsPost)
 
 router.get('/', controller.chatsGet)
 
+router.get('/:chatId', controller.chatsGetId)
+
+router.put('/:chatId', controller.chatPut)
+
 module.exports = router

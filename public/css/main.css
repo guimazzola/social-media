@@ -661,3 +661,8 @@ button span {
 #chatNameTextbox {
     width: 100%;
 }
+
+#chatNameTextbox {
+    width: 100%;
+    border: none;
+}
