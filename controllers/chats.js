@@ -1,6 +1,7 @@
 const User = require('../schemas/User')
 const Post = require('../schemas/Post')
 const Chat = require('../schemas/Chat')
+const Message = require('../schemas/Message')
 
 const chatsPost = async (req, res, next) => {
     if(!req.body.users) {
@@ -33,8 +34,12 @@ const chatsPost = async (req, res, next) => {
 const chatsGet = async (req, res, next) => {
     Chat.find({ users: { $elemMatch: { $eq: req.session.user._id } } })
     .populate("users")
+    .populate("latestMessage")
     .sort({ updatedAt: -1 })
-    .then(results => res.status(200).send(results))
+    .then(async results => {
+        results = await User.populate(results, { path: "latestMessage.sender" })
+        res.status(200).send(results)
+    })
     .catch(error => {
         console.log(error)
         res.sendStatus(400)
@@ -42,8 +47,20 @@ const chatsGet = async (req, res, next) => {
 }
 
 const chatsGetId = async (req, res, next) => {
+
     Chat.findOne({ _id: req.params.chatId, users: { $elemMatch: { $eq: req.session.user._id } } })
     .populate("users")
+    .then(results => res.status(200).send(results))
+    .catch(error => {
+        console.log(error)
+        res.sendStatus(400)
+    })
+}
+
+const chatsGetIdMessages = async (req, res, next) => {
+
+    Message.find({chat: req.params.chatId})
+    .populate("sender")
     .then(results => res.status(200).send(results))
     .catch(error => {
         console.log(error)
@@ -64,5 +81,6 @@ module.exports = {
     chatsPost,
     chatsGet,
     chatPut,
-    chatsGetId
+    chatsGetId,
+    chatsGetIdMessages
 }
